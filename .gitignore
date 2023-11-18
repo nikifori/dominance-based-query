@@ -7,6 +7,7 @@
 hs_err_pid*
 
 .vscode/*
+.vscode/
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
@@ -18,3 +19,6 @@ hs_err_pid*
 
 # Built Visual Studio Code Extensions
 *.vsix
+
+# ignore data folder
+data/
