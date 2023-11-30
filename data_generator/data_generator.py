@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from pathlib import Path
 import argparse
+from sklearn.preprocessing import MinMaxScaler
 
 
 def correlated_gen(
@@ -21,10 +22,11 @@ def correlated_gen(
     mean_vector = np.full(shape=(d), fill_value=mean)
     covariance_matrix = np.full((d, d), covariance_factor, dtype=float)
     np.fill_diagonal(covariance_matrix, 1)
-    print(covariance_matrix)
+    # print(covariance_matrix)
 
     if not anti:
-        return np.random.multivariate_normal(mean=mean_vector, cov=covariance_matrix, size=num_points)
+        scaler = MinMaxScaler()
+        return scaler.fit_transform(np.random.multivariate_normal(mean=mean_vector, cov=covariance_matrix, size=num_points))
     else:
         if d==2:
             corr_matrix = np.full(shape=(d,d), fill_value=-0.9)
@@ -40,9 +42,10 @@ def correlated_gen(
         std_devs = np.ones(d)
         std_dev_matrix = np.diag(std_devs)
         cov_matrix = std_dev_matrix.dot(corr_matrix).dot(std_dev_matrix)
-        print(cov_matrix)
+        # print(cov_matrix)
         anti_corr_data = np.random.multivariate_normal(mean=mean_vector, cov=cov_matrix, size=num_points)
-        return anti_corr_data
+        scaler = MinMaxScaler()
+        return scaler.fit_transform(anti_corr_data)
         
 
 def uniform_gen(
@@ -58,7 +61,8 @@ def normal_gen(
     std: float = 1.0, 
     mean: float = 0.5
 ):  
-    return np.random.normal(loc=mean, scale=std, size=(num_points, d))
+    scaler = MinMaxScaler()
+    return scaler.fit_transform(np.random.normal(loc=mean, scale=std, size=(num_points, d)))
 
 
 def plot_2d(csv_path: str = None):
@@ -112,7 +116,10 @@ def main(args):
     else:
         data = correlated_gen(num_points=args.num_points, d=args.num_dims, anti=True)
     
+    
     pd.DataFrame(data).to_csv(output_filename, index=False, header=False)
+    # plot_2d(output_filename)
+    # plot_3d(output_filename)
     print(f'[INFO] Just finished file: {output_filename}')
 
 
