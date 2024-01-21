@@ -18,6 +18,7 @@ def dominates(point, other):
     return all(point <= other) and any(point < other)
 
 def get_skyline(df):
+    print("[INFO] Calculating skyline...")
     skyline = []
     for i in tqdm(range(len(df))):
         dominated = False
@@ -29,28 +30,30 @@ def get_skyline(df):
             skyline.append(df.iloc[i])
     return pd.DataFrame(skyline)
 
-def calculate_dominance_scores(df):
-    scores = [0] * len(df)
-    for i in tqdm(range(len(df))):
-        for j in range(len(df)):
-            if i != j and dominates(df.iloc[i], df.iloc[j]):
+def calculate_dominance_scores(df1, df2):
+    print("[INFO] Calculating dominance...")
+    scores = [0] * len(df1)
+    for i in tqdm(range(len(df1))):
+        for j in range(len(df2)):
+            if not df1.iloc[i].equals(df2.iloc[j]) and dominates(df1.iloc[i], df2.iloc[j]):
                 scores[i] += 1
     return scores
 
-def top_k_dominant(df, k):
-    scores = calculate_dominance_scores(df)
-    df['dominance_score'] = scores
-    return df.nlargest(k, 'dominance_score').drop('dominance_score', axis=1)
+def top_k_dominant(df1, df2, k):
+    scores = calculate_dominance_scores(df1, df2)
+    temp_df = df1.copy(deep=True)
+    temp_df['dominance_score'] = scores
+    return temp_df.nlargest(k, 'dominance_score')
 
-def top_k_skyline_dominant(df, k):
-    skyline = get_skyline(df)
-    return top_k_dominant(skyline, k)
+def top_k_skyline_dominant(df, skyline, k):
+    # skyline = get_skyline(df)
+    return top_k_dominant(skyline, df, k)
 
 def main():
     k = 10
     params= {'distribution': ['anticorrelated', 'correlated', 'normal', 'uniform'],
-             'num_samples': [500],
-             'num_dims': [2, 3, 4, 5, 6, 7, 8, 9, 10]}
+             'num_samples': [500, 2500],
+             'num_dims': [2, 3, 4, 5]}
 
     combinations = itertools.product(params['distribution'],
                                      params['num_samples'],
@@ -61,12 +64,12 @@ def main():
         file_path = Path(r'.\data') / f'{distr}_{samples}_{dims}.csv'
         df = pd.read_csv(file_path, header=None)
         skyline_df = get_skyline(df)
-        top_k_dominant_df = top_k_dominant(df, k=3)
-        top_k_skyline_dominant_df = top_k_skyline_dominant(df, k=2)
+        top_k_dominant_df = top_k_dominant(df, df, k=k)
+        top_k_skyline_dominant_df = top_k_skyline_dominant(df, skyline_df, k=k)
         result_string = f"Skyline Set:\n{skyline_df}\nSkyline Set Samples Number {skyline_df.shape[0]}\n\nTop {k} Dominant:\n{top_k_dominant_df}\n\nTop {k} Skyline Dominant:\n{top_k_skyline_dominant_df}"
 
         # Save to a text file
-        file_path = fr'.\brute_force_validation\results_for_500_samples\{distr}_{samples}_{dims}.txt'
+        file_path = fr'.\brute_force_validation\new_results_for_{samples}_samples\{distr}_{samples}_{dims}.txt'
         with open(file_path, 'w') as file:
             file.write(result_string)
     
