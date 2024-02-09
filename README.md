@@ -6,7 +6,9 @@
 
 ## How to run
 - Move into `/dominance`
-- Command: `sbt "run [task_to_execute] [csv_data] [top_k] [number_of_processors] [output_csv_file_to_save_results]"`
+- Command:
+
+`sbt "run [task_to_execute] [csv_data] [top_k] [number_of_processors] [output_csv_file_to_save_results]"`
 - An example is: `sbt "run Task1 normal_100000_3 10 4 results.csv"`
 
 ## Data Generation
