@@ -1,4 +1,7 @@
-# dominance-based-query-BD-CSD-2023
+# Dominance Based Query
+
+## Report
+Full report can be found [here](https://github.com/nikifori/dominance-based-query/blob/main/report.pdf) 📝.
 
 ## Main and Results
 - `Main.scala` is in `/dominance/src/main/scala`
